@@ -1,0 +1,726 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#F1F6F5" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0F1C1B" media="(prefers-color-scheme: dark)">
+<meta name="description" content="Bruchrechnen für Klasse 6: Addieren, Subtrahieren, Multiplizieren und Dividieren von Brüchen mit Übungen und Spielen.">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Brüche">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<title>Bruchrechnen Klasse 6</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* Layout: eine Spalte, oben vier große Rechenart-Karten, darunter das Kapitel der gewählten Rechenart
+   (Merksatz, Schritte, Ausprobieren, Üben). Jede Rechenart hat ihre eigene Farbe. */
+:root{
+  --bg:#F1F6F5; --surface:#FFFFFF; --surface2:#E6EEEC; --ink:#12302D; --muted:#4A6763; --line:#D2DFDC;
+  --ok:#17794F; --ok-soft:#DDF3E8; --bad:#B83232; --bad-soft:#FBE3E1;
+  --add:#C2410C; --sub:#1664B8; --mul:#5B35D5; --div:#0B7A5C; --game:#B0245A; --on-op:#FFFFFF;
+  --f-display:"Baloo 2","Nunito",system-ui,sans-serif;
+  --f-body:"Nunito",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0F1C1B; --surface:#172726; --surface2:#1F3331; --ink:#E6F2F0; --muted:#93B0AC; --line:#2B4442;
+    --ok:#4CD08F; --ok-soft:#17382B; --bad:#FF8A80; --bad-soft:#3B1F1F;
+    --add:#FF9A66; --sub:#6DB3F5; --mul:#B3A0FF; --div:#4FD9AE; --game:#FF8FB5; --on-op:#0F1A19; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0F1C1B; --surface:#172726; --surface2:#1F3331; --ink:#E6F2F0; --muted:#93B0AC; --line:#2B4442;
+  --ok:#4CD08F; --ok-soft:#17382B; --bad:#FF8A80; --bad-soft:#3B1F1F;
+  --add:#FF9A66; --sub:#6DB3F5; --mul:#B3A0FF; --div:#4FD9AE; --game:#FF8FB5; --on-op:#0F1A19; color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.55}
+[data-op="add"]{--op:var(--add)} [data-op="sub"]{--op:var(--sub)} [data-op="mul"]{--op:var(--mul)} [data-op="div"]{--op:var(--div)} [data-op="games"]{--op:var(--game)}
+.wrap{max-width:760px;margin:0 auto;padding-block:22px 56px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header{display:flex;flex-direction:column;gap:4px;margin-bottom:18px}
+h1{font-family:var(--f-display);font-weight:800;font-size:clamp(2rem,7vw,2.8rem);line-height:1.05;margin:0;text-wrap:balance}
+.sub{margin:0;color:var(--muted);font-size:1.02rem}
+h2{font-family:var(--f-display);font-weight:700;font-size:1.35rem;margin:0 0 10px;text-wrap:balance}
+p{margin:0}
+.tabs{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-bottom:22px}
+@media (max-width:440px){.tabs{grid-template-columns:1fr 1fr;gap:8px}.tab{padding:8px 10px;gap:8px;font-size:.92rem}.tab .sym{width:32px;height:32px;font-size:1.4rem}}
+.tab{display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:14px;border:2px solid var(--line);background:var(--surface);color:var(--ink);font:inherit;font-weight:800;cursor:pointer;text-align:left;min-width:0}
+.tab .sym{flex:none;width:40px;height:40px;border-radius:50%;display:grid;place-items:center;background:color-mix(in srgb,var(--op) 16%,var(--surface));color:var(--op);font-family:var(--f-display);font-size:1.7rem;line-height:1}
+.tab[aria-selected="true"]{border-color:var(--op);background:color-mix(in srgb,var(--op) 10%,var(--surface))}
+.tab[aria-selected="true"] .sym{background:var(--op);color:var(--on-op)}
+.tab small{display:block;font-weight:600;color:var(--muted);font-size:.78rem}
+:focus-visible{outline:3px solid var(--op,var(--ink));outline-offset:2px}
+.panel{display:flex;flex-direction:column;gap:18px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px;min-width:0}
+.merke{background:color-mix(in srgb,var(--op) 11%,var(--surface));border:1px solid color-mix(in srgb,var(--op) 35%,var(--line));border-radius:16px;padding:16px 18px}
+.label{font-size:.74rem;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--op);margin-bottom:4px}
+.merke p{font-size:1.12rem;font-weight:700}
+ol.steps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:12px;counter-reset:s}
+ol.steps li{display:grid;grid-template-columns:34px 1fr;gap:12px;align-items:start;counter-increment:s}
+ol.steps li::before{content:counter(s);width:34px;height:34px;border-radius:50%;background:var(--op);color:var(--on-op);display:grid;place-items:center;font-family:var(--f-display);font-weight:800}
+ol.steps li div{padding-top:4px;min-width:0}
+.hint{margin-top:14px;color:var(--muted);font-size:.95rem}
+/* Brüche */
+.fr{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;line-height:1.08;font-family:var(--f-display);font-weight:700;margin:0 .12em}
+.fr .n{padding:0 .28em .06em;border-bottom:.09em solid currentColor;min-width:1.3em;text-align:center;white-space:nowrap}
+.fr .d{padding:.06em .28em 0;min-width:1.3em;text-align:center;white-space:nowrap}
+.mx{font-family:var(--f-display);font-weight:700;margin-right:.1em}
+.eq{display:flex;flex-wrap:wrap;align-items:center;gap:.3em .35em;font-family:var(--f-display);font-weight:700;font-size:1.35rem;margin-top:6px}
+.eq .o{color:var(--op);font-size:1.5em;line-height:1}
+.res{font-size:1.6rem}
+.res-box{display:flex;align-items:center;flex-wrap:wrap;gap:10px;padding:12px 16px;border-radius:14px;background:color-mix(in srgb,var(--op) 12%,var(--surface));margin-top:14px;font-family:var(--f-display);font-weight:700;font-size:1.5rem}
+.res-box span.t{font-family:var(--f-body);font-size:.85rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--op)}
+/* Balken */
+.vrow{display:grid;grid-template-columns:72px 1fr;gap:10px;align-items:center;font-size:1.05rem}
+.vrow .lab{display:flex;justify-content:center}
+.vis{display:flex;flex-direction:column;gap:10px;margin-bottom:14px}
+.stack{display:flex;flex-direction:column;gap:4px;min-width:0}
+.bar{display:grid;grid-template-columns:repeat(var(--d),1fr);gap:3px;height:26px}
+.bar i{background:color-mix(in srgb,var(--op) 13%,var(--surface));border-radius:4px;border:1px solid color-mix(in srgb,var(--op) 22%,transparent)}
+.bar i.on{background:var(--op);border-color:var(--op)}
+.bar i.gone{background:repeating-linear-gradient(45deg,color-mix(in srgb,var(--op) 45%,var(--surface)) 0 4px,var(--surface) 4px 8px);border-color:var(--op)}
+.area{display:grid;grid-template-columns:repeat(var(--c),1fr);gap:2px;width:min(100%,250px)}
+.area i{background:var(--surface2);border-radius:3px}
+.area i.h{background:color-mix(in srgb,var(--op) 30%,var(--surface))}
+.area i.v{background:color-mix(in srgb,var(--ink) 22%,var(--surface))}
+.area i.x{background:var(--op)}
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:.88rem;color:var(--muted);margin-top:8px}
+.legend b{display:inline-block;width:14px;height:14px;border-radius:3px;vertical-align:-2px;margin-right:6px}
+.areawrap{display:flex;flex-wrap:wrap;gap:16px 24px;align-items:flex-start;margin-bottom:14px}
+/* Steller */
+.pick{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:16px}
+.pickcol{background:var(--surface2);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:8px}
+.pickcol h3{margin:0;font-size:.8rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.stp{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.stp span.k{font-weight:700;font-size:.95rem}
+.stp .ctl{display:flex;align-items:center;gap:8px}
+.stp .val{min-width:1.8em;text-align:center;font-family:var(--f-display);font-weight:800;font-size:1.4rem;font-variant-numeric:tabular-nums}
+.rb{width:38px;height:38px;border-radius:50%;border:2px solid var(--op);background:var(--surface);color:var(--op);font:inherit;font-size:1.3rem;font-weight:800;cursor:pointer;display:grid;place-items:center;line-height:1;padding:0}
+.rb:active{background:var(--op);color:var(--on-op)}
+.note{padding:12px 14px;border-radius:12px;background:var(--bad-soft);color:var(--ink)}
+/* Üben */
+.lvl{display:flex;gap:6px;flex-wrap:wrap}
+.chip{border:2px solid var(--line);background:var(--surface);color:var(--ink);font:inherit;font-weight:700;font-size:.9rem;padding:5px 12px;border-radius:999px;cursor:pointer}
+.chip[aria-pressed="true"]{border-color:var(--op);background:var(--op);color:var(--on-op)}
+.prac-top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.stats{font-size:.9rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.task{display:flex;flex-wrap:wrap;align-items:center;gap:.3em .4em;font-family:var(--f-display);font-weight:700;font-size:1.9rem;padding:8px 0 4px}
+.task .o{color:var(--op);font-size:1.2em}
+.ans{display:inline-flex;flex-direction:column;align-items:center;gap:4px}
+.ans input{width:88px;height:44px;border:2px solid var(--line);border-radius:10px;background:var(--surface);color:var(--ink);font-family:var(--f-display);font-weight:700;font-size:1.3rem;text-align:center;padding:0}
+.ans input::placeholder{font-size:.8rem;font-family:var(--f-body);font-weight:600}
+.ans input:focus{border-color:var(--op);outline:none;box-shadow:0 0 0 3px color-mix(in srgb,var(--op) 30%,transparent)}
+.ans hr{width:100%;border:0;border-top:3px solid currentColor;margin:0}
+.btns{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
+.btn{font:inherit;font-weight:800;border-radius:12px;padding:10px 18px;border:2px solid var(--op);background:var(--surface);color:var(--op);cursor:pointer;min-height:44px}
+.btn.p{background:var(--op);color:var(--on-op)}
+.fb{margin-top:14px;padding:12px 14px;border-radius:12px;font-weight:700}
+.fb.ok{background:var(--ok-soft);color:var(--ok)}
+.fb.bad{background:var(--bad-soft);color:var(--bad)}
+.fb.info{background:var(--surface2);color:var(--ink);font-weight:600}
+.fb .fr{font-size:1.2rem}
+details.how{margin-top:12px}
+details.how summary{cursor:pointer;font-weight:800;color:var(--op)}
+.hintlist{margin-top:12px;display:flex;flex-direction:column;gap:10px}
+.hintlist .eq{font-size:1.2rem}
+.hintlist .t{font-weight:600}
+.small-eq .eq{font-size:1.15rem}
+
+.story{display:flex;flex-direction:column;gap:10px}
+.story .q{font-size:1.08rem;font-weight:700}
+details.pre{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:14px 18px}
+details.pre summary{cursor:pointer;font-weight:800;font-family:var(--f-display);font-size:1.15rem}
+.pre-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-top:12px}
+.pre-grid>div{background:var(--surface2);border-radius:12px;padding:12px;min-width:0}
+.pre-grid h3{margin:0 0 6px;font-size:.8rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.pre-grid .eq{font-size:1.15rem}
+
+.tab[data-op="games"]{grid-column:1/-1}
+.gmenu{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}
+.gcard{display:flex;flex-direction:column;gap:2px;text-align:left;padding:10px 12px;border-radius:14px;border:2px solid var(--line);background:var(--surface);color:var(--ink);font:inherit;cursor:pointer;min-width:0}
+.gcard small{color:var(--muted);font-weight:600;font-size:.8rem}
+.gcard[aria-pressed="true"]{border-color:var(--op);background:color-mix(in srgb,var(--op) 10%,var(--surface))}
+.gm-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(86px,1fr));gap:10px;margin-top:10px}
+.mc{min-height:84px;border-radius:12px;border:2px solid var(--op);background:var(--op);color:var(--on-op);font-family:var(--f-display);font-weight:800;font-size:1.6rem;cursor:pointer;display:grid;place-items:center;padding:0}
+.mc.up{background:var(--surface);color:var(--ink)}
+.mc.done{background:var(--ok-soft);color:var(--ok);border-color:var(--ok);cursor:default}
+.cmp-row{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:12px 22px;font-family:var(--f-display);font-weight:700;font-size:2.2rem;margin:12px 0}
+.cmp-btns{display:flex;gap:10px;justify-content:center}
+.cbtn{width:60px;height:56px;border-radius:14px;border:2px solid var(--op);background:var(--surface);color:var(--op);font-family:var(--f-display);font-weight:800;font-size:1.8rem;cursor:pointer;padding:0}
+.cbtn:disabled{opacity:.45;cursor:default}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.opt{min-height:68px;border-radius:14px;border:2px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer;font-size:1.5rem;display:grid;place-items:center;padding:6px}
+.opt:hover{border-color:var(--op)}
+.gbar{display:flex;height:60px;border:2px solid var(--op);border-radius:12px;overflow:hidden;background:color-mix(in srgb,var(--op) 8%,var(--surface));margin:12px 0}
+.gbar.over{border-color:var(--bad)}
+.seg{flex:none;border:0;border-right:2px solid var(--surface);background:var(--op);color:var(--on-op);font-family:var(--f-display);font-weight:700;font-size:.85rem;cursor:pointer;padding:0;min-width:0;overflow:hidden;display:grid;place-items:center}
+.seg:nth-child(even){background:color-mix(in srgb,var(--op) 72%,var(--ink))}
+.gbar.over .seg{background:var(--bad);color:var(--surface)}
+.pool{display:grid;grid-template-columns:repeat(auto-fit,minmax(78px,1fr));gap:10px}
+.pc{min-height:66px;border-radius:12px;border:2px solid var(--op);background:var(--surface);color:var(--ink);font-size:1.3rem;cursor:pointer}
+.pc:disabled{opacity:.3;cursor:default}
+.gbig{font-family:var(--f-display);font-weight:800;font-size:2.4rem;line-height:1.1}
+@media (prefers-reduced-motion:no-preference){.panel{animation:in .25s ease}@keyframes in{from{opacity:.4;transform:translateY(6px)}to{opacity:1;transform:none}}}
+</style>
+
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Bruchrechnen</h1>
+    <p class="sub">Die vier Grundrechenarten mit Brüchen. Wähle oben eine Rechenart: erst verstehen, dann ausprobieren, dann üben.</p>
+  </header>
+  <details class="pre" id="pre"><summary>Vorwissen auffrischen: Erweitern, Kürzen, gemischte Zahlen</summary>
+    <div class="pre-grid">
+      <div><h3>Erweitern</h3><p>Zähler und Nenner mit derselben Zahl malnehmen. Der Wert bleibt gleich, nur die Stücke werden kleiner.</p><div class="eq" id="pre-e"></div></div>
+      <div><h3>Kürzen</h3><p>Zähler und Nenner durch dieselbe Zahl teilen. Der Wert bleibt gleich, die Stücke werden größer.</p><div class="eq" id="pre-k"></div></div>
+      <div><h3>Gemischte Zahl</h3><p>Ein Ganzes und ein Bruch. Wenn der Zähler größer als der Nenner ist, passen Ganze hinein.</p><div class="eq" id="pre-g"></div></div>
+    </div>
+  </details>
+
+  <nav class="tabs" role="tablist" id="tabs" aria-label="Rechenart"></nav>
+  <main id="panel" class="panel" role="tabpanel"></main>
+</div>
+
+<script>
+(function(){
+"use strict";
+var gcd=function(a,b){return b?gcd(b,a%b):a;};
+var lcm=function(a,b){return a/gcd(a,b)*b;};
+var R=function(a,b){return a+Math.floor(Math.random()*(b-a+1));};
+function fr(n,d){return '<span class="fr"><span class="n">'+n+'</span><span class="d">'+d+'</span></span>';}
+function o(s){return '<span class="o">'+s+'</span>';}
+function mixed(N,D){var w=Math.floor(N/D),r=N%D;if(r===0)return ''+w;if(w===0)return fr(r,D);return '<span class="mx">'+w+'</span>'+fr(r,D);}
+
+var OPS={
+  add:{name:'Addieren',sym:'+',sub:'zusammenzählen',
+    merke:'Brüche mit gleichem Nenner addierst du, indem du nur die Zähler addierst. Der Nenner bleibt gleich.',
+    steps:['Schau auf die beiden Nenner. Sind sie gleich? Dann spring zu Schritt 3.','Finde den Hauptnenner (das kleinste gemeinsame Vielfache) und erweitere beide Brüche darauf.','Addiere die Zähler. Der Nenner bleibt unverändert.','Kürze das Ergebnis, wenn es geht.'],
+    hint:'Typischer Fehler: die Nenner mitzuaddieren. 1/2 + 1/2 ist nicht 2/4, sondern 1 Ganzes. Die Stücke bleiben gleich groß, du zählst nur, wie viele du hast.',sy:'+'},
+  sub:{name:'Subtrahieren',sym:'−',sub:'abziehen',
+    merke:'Beim Subtrahieren brauchst du wie beim Addieren gleiche Nenner. Dann ziehst du nur die Zähler voneinander ab.',
+    steps:['Schau auf die beiden Nenner. Sind sie gleich? Dann spring zu Schritt 3.','Finde den Hauptnenner und erweitere beide Brüche darauf.','Subtrahiere die Zähler. Der Nenner bleibt unverändert.','Kürze das Ergebnis, wenn es geht.'],
+    hint:'Der erste Bruch muss größer sein als der zweite. Sonst käme eine negative Zahl heraus, die lernst du erst später kennen.',sy:'−'},
+  mul:{name:'Multiplizieren',sym:'·',sub:'malnehmen',
+    merke:'Bruch mal Bruch: Zähler mal Zähler und Nenner mal Nenner. Einen Hauptnenner brauchst du dafür nicht.',
+    steps:['Multipliziere die beiden Zähler miteinander.','Multipliziere die beiden Nenner miteinander.','Schreibe beides als neuen Bruch auf.','Kürze das Ergebnis, wenn es geht.'],
+    hint:'Wenn du einen Bruch kleiner als 1 mit einem anderen Bruch malnimmst, nimmst du nur einen Teil von einem Teil. Darum wird das Ergebnis kleiner. Im Rechteck unten siehst du das.',sy:'·'},
+  div:{name:'Dividieren',sym:':',sub:'teilen',
+    merke:'Durch einen Bruch teilst du, indem du mit seinem Kehrwert malnimmst.',
+    steps:['Der erste Bruch bleibt genau so stehen.','Bilde den Kehrwert vom zweiten Bruch: Zähler und Nenner tauschen den Platz.','Aus dem Geteilt-Zeichen wird ein Mal-Zeichen. Multipliziere die Brüche.','Kürze das Ergebnis, wenn es geht.'],
+    hint:'',sy:':'}
+};
+OPS.games={name:'Spiele',sym:'★',sub:'4 Minispiele',sy:''};
+var ORDER=['add','sub','mul','div','games'];
+var STORY={
+  add:{a:1,b:2,c:1,d:4,q:'Lena trinkt morgens ½ Liter Saft und mittags ¼ Liter. Wie viel hat sie zusammen getrunken?'},
+  sub:{a:3,b:4,c:1,d:8,q:'Tom hat ¾ einer Tafel Schokolade. Er isst ⅛ der Tafel auf. Wie viel bleibt übrig?'},
+  mul:{a:1,b:3,c:1,d:2,q:'Von der Pizza ist noch ⅓ übrig. Jan isst die Hälfte davon. Welcher Teil der ganzen Pizza ist das?'},
+  div:{a:1,b:2,c:1,d:8,q:'In einem Krug sind ½ Liter. Jedes Glas fasst ⅛ Liter. Wie viele Gläser kannst du füllen?'}
+};
+
+/* ---------- Rechenwege ---------- */
+function finish(s,N,D){
+  var g=gcd(N,D),n=N/g,d=D/g;
+  if(g>1)s.push({t:'Kürze: teile Zähler und Nenner durch '+g+'.',m:fr(N,D)+o('=')+fr(N+' : '+g,D+' : '+g)+o('=')+fr(n,d)});
+  else if(D>1)s.push({t:'Kürzen geht nicht mehr, denn '+N+' und '+D+' haben außer 1 keinen gemeinsamen Teiler.',m:fr(n,d)});
+  if(d===1)s.push({t:'Der Nenner ist 1. Das Ergebnis ist eine ganze Zahl.',m:'<span class="mx">'+n+'</span>'});
+  else if(n>d)s.push({t:'Der Zähler ist größer als der Nenner. Als gemischte Zahl geschrieben:',m:fr(n,d)+o('=')+mixed(n,d)});
+  return [n,d];
+}
+function solve(op,a,b,c,d){
+  var s=[],N,D,L,fa,fc;
+  if(op==='add'||op==='sub'){
+    var sg=op==='add'?'+':'−';
+    if(b===d){
+      s.push({t:'Die Nenner sind gleich ('+b+'). Du kannst direkt rechnen.',m:fr(a,b)+o(sg)+fr(c,d)});
+      L=b;fa=1;fc=1;
+    }else{
+      L=lcm(b,d);fa=L/b;fc=L/d;
+      s.push({t:'Die Nenner sind verschieden ('+b+' und '+d+'). Der Hauptnenner ist das kleinste gemeinsame Vielfache von '+b+' und '+d+': '+L+'.',m:'<span>'+b+' · '+fa+' = '+L+'</span>'+o(' ')+'<span>'+d+' · '+fc+' = '+L+'</span>'});
+      s.push({t:'Erweitere beide Brüche auf den Nenner '+L+'.',m:fr(a+' · '+fa,b+' · '+fa)+o('=')+fr(a*fa,L)+o(' ')+o(sg)+o(' ')+fr(c+' · '+fc,d+' · '+fc)+o('=')+fr(c*fc,L)});
+    }
+    N=op==='add'?a*fa+c*fc:a*fa-c*fc;D=L;
+    s.push({t:(op==='add'?'Addiere':'Subtrahiere')+' die Zähler. Der Nenner bleibt '+L+'.',m:fr(a*fa,L)+o(sg)+fr(c*fc,L)+o('=')+fr(a*fa+(op==='add'?' + ':' − ')+c*fc,L)+o('=')+fr(N,D)});
+  }else if(op==='mul'){
+    N=a*c;D=b*d;
+    s.push({t:'Zähler mal Zähler, Nenner mal Nenner.',m:fr(a,b)+o('·')+fr(c,d)+o('=')+fr(a+' · '+c,b+' · '+d)+o('=')+fr(N,D)});
+  }else{
+    s.push({t:'Bilde den Kehrwert des zweiten Bruchs und rechne mal.',m:fr(a,b)+o(':')+fr(c,d)+o('=')+fr(a,b)+o('·')+fr(d,c)});
+    N=a*d;D=b*c;
+    s.push({t:'Zähler mal Zähler, Nenner mal Nenner.',m:fr(a,b)+o('·')+fr(d,c)+o('=')+fr(a+' · '+d,b+' · '+c)+o('=')+fr(N,D)});
+  }
+  var res=finish(s,N,D);
+  return {steps:s,res:res};
+}
+function stepsHtml(st){
+  return st.map(function(x){return '<div><p class="t">'+x.t+'</p><div class="eq">'+x.m+'</div></div>';}).join('');
+}
+
+/* ---------- Visualisierung ---------- */
+function bars(n,d,gone){
+  var count=Math.max(1,Math.ceil(n/d)),left=n,h='',g=gone||0,total=n;
+  for(var k=0;k<count;k++){
+    var f=Math.min(d,left),cells='';
+    for(var i=0;i<d;i++){
+      var idx=k*d+i,cls='';
+      if(i<f){cls=(idx>=total-g)?'gone':'on';}
+      cells+='<i class="'+cls+'"></i>';
+    }
+    left-=f;
+    h+='<div class="bar" style="--d:'+d+'">'+cells+'</div>';
+  }
+  return '<div class="stack">'+h+'</div>';
+}
+function vrow(lab,b){return '<div class="vrow"><div class="lab">'+lab+'</div>'+b+'</div>';}
+function areaHtml(a,b,c,d){
+  var cells='';
+  for(var r=0;r<d;r++)for(var k=0;k<b;k++){
+    var h=k<a,v=r<c;
+    cells+='<i class="'+(h&&v?'x':h?'h':v?'v':'')+'"></i>';
+  }
+  return '<div class="areawrap"><div><div class="area" style="--c:'+b+';aspect-ratio:'+b+'/'+d+'">'+cells+'</div>'+
+    '<div class="legend"><span><b style="background:color-mix(in srgb,var(--op) 30%,var(--surface))"></b>'+a+' von '+b+' Spalten</span>'+
+    '<span><b style="background:color-mix(in srgb,var(--ink) 22%,var(--surface))"></b>'+c+' von '+d+' Zeilen</span>'+
+    '<span><b style="background:var(--op)"></b>Überschneidung</span></div></div></div>';
+}
+
+/* ---------- Zustand ---------- */
+var demo={add:{a:1,b:2,c:1,d:3},sub:{a:3,b:4,c:1,d:6},mul:{a:2,b:3,c:3,d:4},div:{a:2,b:3,c:1,d:6}};
+var stats={add:{ok:0,tr:0,st:0},sub:{ok:0,tr:0,st:0},mul:{ok:0,tr:0,st:0},div:{ok:0,tr:0,st:0}};
+var level=1,cur='add',task=null,hintIdx=0,tries=0,solved=false;
+try{
+  var sv=JSON.parse(localStorage.getItem('bruch-v1')||'null');
+  if(sv){if(sv.stats)for(var k in stats)if(sv.stats[k])stats[k]=sv.stats[k];if(sv.level)level=sv.level;if(sv.cur&&OPS[sv.cur])cur=sv.cur;}
+}catch(e){}
+try{var hs=location.hash.replace('#','');if(OPS[hs])cur=hs;}catch(e){}
+function save(){try{localStorage.setItem('bruch-v1',JSON.stringify({stats:stats,level:level,cur:cur}));}catch(e){}}
+
+/* ---------- Tabs ---------- */
+function renderTabs(){
+  document.getElementById('tabs').innerHTML=ORDER.map(function(k){
+    var p=OPS[k];
+    return '<button class="tab" role="tab" data-op="'+k+'" data-act="tab" aria-selected="'+(k===cur)+'"><span class="sym">'+p.sym+'</span><span>'+p.name+'<small>'+p.sub+'</small></span></button>';
+  }).join('');
+}
+
+/* ---------- Panel ---------- */
+function stepper(label,key,val){
+  return '<div class="stp"><span class="k">'+label+'</span><span class="ctl"><button class="rb" data-act="dec" data-key="'+key+'" aria-label="'+label+' kleiner">−</button><span class="val" id="v-'+key+'">'+val+'</span><button class="rb" data-act="inc" data-key="'+key+'" aria-label="'+label+' größer">+</button></span></div>';
+}
+function storyCard(op){
+  var t=STORY[op],r=solve(op,t.a,t.b,t.c,t.d);
+  return '<div class="card story"><h2>Ein Beispiel aus dem Alltag</h2><p class="q">'+t.q+'</p>'+
+    '<div class="eq">'+fr(t.a,t.b)+o(OPS[op].sy)+fr(t.c,t.d)+o('=')+fr(r.res[0],r.res[1])+'</div>'+
+    visFor(op,t.a,t.b,t.c,t.d)+
+    '<details class="how"><summary>Rechenweg ansehen</summary><div class="hintlist">'+stepsHtml(r.steps)+'</div></details></div>';
+}
+function renderPanel(){
+  stopTimers();
+  if(cur==='games'){document.getElementById('panel').setAttribute('data-op','games');renderGames();return;}
+  var op=cur,p=OPS[op],m=document.getElementById('panel'),dm=demo[op];
+  m.setAttribute('data-op',op);
+  var why='';
+  if(op==='div'){
+    why='<div class="card"><h2>Warum der Kehrwert?</h2><div class="vis"><div class="vrow"><div class="lab">'+fr(1,1)+'</div><div class="stack"><div class="bar" style="--d:4"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></div></div></div></div>'+
+      '<p>Wie oft passt ein Viertel in ein Ganzes? Viermal. Also ist 1 : '+fr(1,4)+' = 4. Und 4 ist dasselbe wie 1 · '+fr(4,1)+', also 1 mal der Kehrwert von '+fr(1,4)+'. Teilen durch einen Bruch fragt immer: Wie oft passt er hinein?</p></div>';
+  }
+  m.innerHTML=
+    '<div class="merke"><div class="label">Merke</div><p>'+p.merke+'</p></div>'+
+    storyCard(op)+
+    '<div class="card"><h2>So geht\'s</h2><ol class="steps">'+p.steps.map(function(t){return '<li><div>'+t+'</div></li>';}).join('')+'</ol>'+(p.hint?'<p class="hint">'+p.hint+'</p>':'')+'</div>'+
+    why+
+    '<div class="card"><h2>Probier\'s aus</h2><p class="hint" style="margin:0 0 12px">Stelle zwei Brüche ein und schau, wie der Rechenweg aussieht.</p>'+
+      '<div class="pick"><div class="pickcol"><h3>1. Bruch</h3>'+stepper('Zähler','a',dm.a)+stepper('Nenner','b',dm.b)+'</div><div class="pickcol"><h3>2. Bruch</h3>'+stepper('Zähler','c',dm.c)+stepper('Nenner','d',dm.d)+'</div></div>'+
+      '<div id="demo-out"></div></div>'+
+    '<div class="card"><div class="prac-top"><h2 style="margin:0">Du bist dran</h2><div class="lvl" role="group" aria-label="Schwierigkeit">'+
+      [1,2,3].map(function(l){return '<button class="chip" data-act="lvl" data-l="'+l+'" aria-pressed="'+(l===level)+'">'+['Leicht','Mittel','Schwer'][l-1]+'</button>';}).join('')+
+      '</div></div><div class="stats" id="stats"></div><div id="prac"></div></div>'+
+    '<div class="card"><div class="prac-top"><h2 style="margin:0">Zufalls-Sachaufgabe</h2><button class="btn" data-act="wnew">Neue Sachaufgabe</button></div><div id="word"></div></div>';
+  updateDemo();newTask();updateStats();newWord();
+}
+
+/* ---------- Demo ---------- */
+function visFor(op,a,b,c,d){
+  var vis='';
+  if(op==='add'||op==='sub'||op==='div'){
+    var L=lcm(b,d),fa=L/b,fc=L/d;
+    if(L<=24){
+      var A=a*fa,B=c*fc;
+      if(op==='add')vis='<div class="vis">'+vrow(fr(A,L),bars(A,L))+vrow(fr(B,L),bars(B,L))+vrow(fr(A+B,L),bars(A+B,L))+'</div>';
+      else if(op==='sub')vis='<div class="vis">'+vrow(fr(A,L),bars(A,L,B))+vrow(fr(A-B,L),bars(A-B,L))+'</div><p class="hint" style="margin:-4px 0 14px">Die gestreiften Stücke werden weggenommen.</p>';
+      else vis='<div class="vis">'+vrow(fr(A,L),bars(A,L))+vrow(fr(B,L),bars(B,L))+'</div><p class="hint" style="margin:-4px 0 14px">Zähle, wie oft das kleine Stück '+fr(c,d)+' in das große Stück '+fr(a,b)+' passt.</p>';
+    }else vis='<p class="hint" style="margin:0 0 14px">Der Hauptnenner ist so groß, dass sich das Bild nicht lohnt. Der Rechenweg funktioniert trotzdem.</p>';
+  }else vis=areaHtml(a,b,c,d);
+  return vis;
+}
+function updateDemo(){
+  var op=cur,dm=demo[op],a=dm.a,b=dm.b,c=dm.c,d=dm.d;
+  ['a','b','c','d'].forEach(function(k){var e=document.getElementById('v-'+k);if(e)e.textContent=dm[k];});
+  var out=document.getElementById('demo-out'),h='',sym=OPS[op].sy;
+  var head='<div class="eq" style="font-size:1.7rem;margin:0 0 14px">'+fr(a,b)+o(sym)+fr(c,d)+o('=')+'<span class="fr"><span class="n">?</span><span class="d">?</span></span></div>';
+  if(op==='sub'&&a*d<c*b){
+    out.innerHTML=head+'<div class="note">Hier käme etwas Negatives heraus. Stelle den ersten Bruch größer oder den zweiten kleiner ein.</div>';return;
+  }
+  var r=solve(op,a,b,c,d),vis=visFor(op,a,b,c,d);
+  var extra='';
+  if(op==='div'){
+    var n2=r.res[0]*c,d2=r.res[1]*d,g=gcd(n2,d2);
+    extra='<p class="hint" style="margin-top:12px">Probe: Ergebnis mal zweiter Bruch muss wieder den ersten Bruch ergeben.</p><div class="eq small-eq" style="font-size:1.2rem">'+fr(r.res[0],r.res[1])+o('·')+fr(c,d)+o('=')+fr(n2/g,d2/g)+'</div>';
+  }
+  out.innerHTML=head+vis+'<div class="hintlist">'+stepsHtml(r.steps)+'</div><div class="res-box"><span class="t">Ergebnis</span>'+fr(r.res[0],r.res[1])+(r.res[1]>1&&r.res[0]>r.res[1]?'<span style="font-size:1.1rem">= '+mixed(r.res[0],r.res[1])+'</span>':'')+'</div>'+extra;
+}
+
+/* ---------- Aufgaben ---------- */
+function genTask(op,lvl){
+  var a,b,c,d,n=0,prop=function(x){return R(1,x-1);};
+  if(op==='add'||op==='sub'){
+    do{
+      if(lvl===1){b=d=R(3,12);}
+      else if(lvl===2){var p=R(2,5),k=R(2,3);b=p;d=p*k;if(Math.random()<.5){var t=b;b=d;d=t;}}
+      else{var ds=[2,3,4,5,6,8,9,10,12];b=ds[R(0,ds.length-1)];do{d=ds[R(0,ds.length-1)];}while(d===b||b%d===0||d%b===0);}
+      a=prop(b);c=prop(d);n++;
+    }while(op==='sub'&&a*d<=c*b&&n<300);
+    if(op==='sub'&&a*d<=c*b){a=2;b=3;c=1;d=3;}
+  }else{
+    var mx=lvl===3?10:6;b=R(2,mx);d=R(2,mx);
+    if(lvl===1){a=1;c=1;}else{a=prop(b);c=prop(d);}
+  }
+  var s=solve(op,a,b,c,d);
+  return {op:op,a:a,b:b,c:c,d:d,ans:s.res,steps:s.steps};
+}
+function newTask(){
+  task=genTask(cur,level);hintIdx=0;tries=0;solved=false;
+  var sym=OPS[cur].sy;
+  document.getElementById('prac').innerHTML=
+    '<div class="task">'+fr(task.a,task.b)+o(sym)+fr(task.c,task.d)+o('=')+
+    '<span class="ans"><input id="ans-n" inputmode="numeric" autocomplete="off" aria-label="Zähler deiner Antwort" placeholder="Zähler"><hr><input id="ans-d" inputmode="numeric" autocomplete="off" aria-label="Nenner deiner Antwort" placeholder="Nenner"></span></div>'+
+    '<div class="btns"><button class="btn p" data-act="check">Prüfen</button><button class="btn" data-act="hint">Tipp</button><button class="btn" data-act="skip">Neue Aufgabe</button></div>'+
+    '<div id="fb" aria-live="polite"></div>';
+  var f=document.getElementById('ans-n');
+}
+function updateStats(){
+  var s=stats[cur],e=document.getElementById('stats');
+  if(e)e.textContent='Richtig: '+s.ok+' von '+s.tr+' Versuchen · Serie: '+s.st;
+}
+function fb(cls,html){document.getElementById('fb').innerHTML='<div class="fb '+cls+'">'+html+'</div>';}
+function check(){
+  if(solved)return;
+  var zs=document.getElementById('ans-n').value.trim(),ns=document.getElementById('ans-d').value.trim();
+  var z=parseInt(zs,10),n=ns===''?1:parseInt(ns,10);
+  if(isNaN(z)||!/^\d+$/.test(zs)){fb('info','Trag zuerst einen Zähler ein. Bei einer ganzen Zahl reicht der Zähler, der Nenner darf leer bleiben.');return;}
+  if(isNaN(n)||n<1||!/^\d*$/.test(ns)){fb('info','Der Nenner muss eine Zahl größer als 0 sein.');return;}
+  var s=stats[cur];s.tr++;tries++;
+  var A=task.ans;
+  if(z*A[1]===A[0]*n){
+    solved=true;s.ok++;s.st++;
+    var g=gcd(z,n);
+    if(g>1&&n>1){fb('ok','Der Wert stimmt! Du kannst aber noch durch '+g+' kürzen: '+fr(z/g,n/g)+'.');}
+    else{fb('ok',['Richtig! Stark gerechnet.','Genau so!','Stimmt, sauber gemacht.','Richtig, weiter so!'][R(0,3)]+(A[1]>1&&A[0]>A[1]?' Als gemischte Zahl: '+mixed(A[0],A[1])+'.':''));}
+    document.getElementById('fb').insertAdjacentHTML('beforeend','<details class="how"><summary>Rechenweg ansehen</summary><div class="hintlist">'+stepsHtml(task.steps)+'</div></details>');
+    document.getElementById('fb').insertAdjacentHTML('beforeend','<div class="btns"><button class="btn p" data-act="skip">Nächste Aufgabe</button></div>');
+  }else{
+    s.st=0;
+    var a=task.a,b=task.b,c=task.c,d=task.d,msg='Noch nicht ganz. Versuch es nochmal oder hol dir einen Tipp.';
+    if((cur==='add'&&z*(b+d)===n*(a+c))||(cur==='sub'&&z*(b+d)===n*(a-c)))msg='Du hast die Nenner mit addiert. Bei Brüchen bleibt der Nenner gleich, nachdem du auf den Hauptnenner erweitert hast.';
+    else if(cur==='div'&&z*b*d===n*a*c)msg='Du hast ohne Kehrwert multipliziert. Beim Teilen musst du zuerst den zweiten Bruch umdrehen.';
+    else if(cur==='mul'&&z*(b+d)===n*(a+c))msg='Beim Malnehmen rechnest du Zähler mal Zähler und Nenner mal Nenner, nicht plus.';
+    fb('bad',msg);
+  }
+  updateStats();save();
+}
+function hint(){
+  if(solved)return;
+  hintIdx=Math.min(hintIdx+1,task.steps.length);
+  var h=stepsHtml(task.steps.slice(0,hintIdx));
+  var more=hintIdx<task.steps.length?'<p class="hint" style="margin-top:10px">Drück nochmal auf Tipp für den nächsten Schritt.</p>':'';
+  document.getElementById('fb').innerHTML='<div class="fb info"><div class="hintlist">'+h+'</div>'+more+'</div>';
+}
+
+
+/* ---------- Spiele ---------- */
+var GAMES=[
+  {id:'memory',name:'Memory',sub:'Gleichwertige Brüche finden'},
+  {id:'cmp',name:'Größer oder kleiner',sub:'10 Brüche vergleichen'},
+  {id:'rush',name:'Zeitjagd',sub:'60 Sekunden rechnen'},
+  {id:'fill',name:'Ganzes füllen',sub:'Stücke zu 1 legen'}
+];
+var gsel='memory',gbest={memory:0,cmp:0,rush:0,fill:0},gtimer=null,gst={};
+try{var gbs=JSON.parse(localStorage.getItem('bruch-games-v1')||'null');if(gbs)for(var gk in gbest)if(typeof gbs[gk]==='number')gbest[gk]=gbs[gk];}catch(e){}
+function gsave(){try{localStorage.setItem('bruch-games-v1',JSON.stringify(gbest));}catch(e){}}
+function stopTimers(){if(gtimer){clearInterval(gtimer);gtimer=null;}if(gst&&gst.to){clearTimeout(gst.to);gst.to=null;}}
+function sh(a){for(var i=a.length-1;i>0;i--){var j=R(0,i),t=a[i];a[i]=a[j];a[j]=t;}return a;}
+function rd(n,d){var g=gcd(n,d);return [n/g,d/g];}
+function disp(n,d){return d===1?'<span class="mx">'+n+'</span>':fr(n,d);}
+function ga(){return document.getElementById('garea');}
+function record(id,val,low){var b=gbest[id],isNew=low?(b===0||val<b):val>b;if(isNew&&(low||val>0)){gbest[id]=val;gsave();return true;}return false;}
+function bestTxt(id){var b=gbest[id];if(!b)return 'noch keiner';return id==='memory'?b+' Züge':id==='cmp'?b+' von 10':id==='rush'?b+' Punkte':b+' in Folge';}
+function renderGames(){
+  var m=document.getElementById('panel');
+  m.innerHTML='<div class="merke"><div class="label">Spiele</div><p>Üben mit Spaß. Dein Rekord wird in diesem Browser gespeichert.</p></div>'+
+    '<div class="gmenu" role="group" aria-label="Spiel wählen">'+GAMES.map(function(g){return '<button class="gcard" data-g="sel" data-id="'+g.id+'" aria-pressed="'+(g.id===gsel)+'"><b>'+g.name+'</b><small>'+g.sub+'</small></button>';}).join('')+'</div>'+
+    '<div class="card" id="garea"></div>';
+  startGame(gsel);
+}
+function startGame(id){stopTimers();gst={};gsel=id;({memory:gMemory,cmp:gCmp,rush:gRush,fill:gFill})[id]();}
+function againBtn(t){return '<div class="btns"><button class="btn p" data-g="again">'+(t||'Nochmal spielen')+'</button></div>';}
+
+/* 1. Memory */
+function gMemory(){
+  var P=sh([[1,2],[1,3],[2,3],[1,4],[3,4],[1,5],[2,5],[3,5],[1,6],[5,6],[3,8],[5,8],[1,8],[7,8]]).slice(0,6),cards=[];
+  P.forEach(function(f,i){var k=R(2,4);cards.push({p:i,n:f[0],d:f[1]});cards.push({p:i,n:f[0]*k,d:f[1]*k});});
+  sh(cards);
+  gst={cards:cards,open:[],moves:0,found:0,lock:false};
+  ga().innerHTML='<h2>Memory</h2><p class="hint" style="margin:0 0 10px">Decke zwei Karten auf. Haben sie den gleichen Wert, bleiben sie liegen. Zum Beispiel '+fr(1,2)+' und '+fr(2,4)+'.</p>'+
+    '<div class="stats" id="gm-stat"></div><div class="gm-grid">'+cards.map(function(c,i){return '<button class="mc" data-g="mc" data-i="'+i+'"></button>';}).join('')+'</div><div id="gm-end" aria-live="polite"></div>';
+  gmPaint();
+}
+function gmPaint(){
+  var bs=document.querySelectorAll('.gm-grid .mc');
+  gst.cards.forEach(function(c,i){
+    var up=gst.open.indexOf(i)>-1,show=c.done||up,b=bs[i];
+    b.className='mc'+(c.done?' done':up?' up':'');
+    b.innerHTML=show?fr(c.n,c.d):'?';
+    b.setAttribute('aria-label',show?'Karte '+c.n+' von '+c.d:'Verdeckte Karte '+(i+1));
+  });
+  document.getElementById('gm-stat').textContent='Züge: '+gst.moves+' · Paare: '+gst.found+' von 6 · Rekord: '+bestTxt('memory');
+}
+function gmClick(i){
+  var s=gst;if(s.lock||s.cards[i].done||s.open.indexOf(i)>-1||s.open.length>=2)return;
+  s.open.push(i);
+  if(s.open.length===2){
+    s.moves++;var A=s.cards[s.open[0]],B=s.cards[s.open[1]];
+    if(A.p===B.p){A.done=B.done=true;s.open=[];s.found++;gmPaint();if(s.found===6)gmWin();return;}
+    s.lock=true;gmPaint();s.to=setTimeout(function(){s.open=[];s.lock=false;gmPaint();},900);return;
+  }
+  gmPaint();
+}
+function gmWin(){
+  var nr=record('memory',gst.moves,true);
+  document.getElementById('gm-stat').textContent='Züge: '+gst.moves+' · Rekord: '+bestTxt('memory');
+  document.getElementById('gm-end').innerHTML='<div class="fb ok">Alle Paare gefunden in '+gst.moves+' Zügen.'+(nr?' Neuer Rekord!':'')+'</div>'+againBtn();
+}
+
+/* 2. Größer oder kleiner */
+function gCmp(){gst={r:0,ok:0};gcNext();}
+function gcNext(){
+  var s=gst;if(s.r>=10){gcEnd();return;}
+  s.r++;s.answered=false;var a,b,c,d;
+  if(Math.random()<.2){b=R(2,6);var k=R(2,3);a=R(1,b-1);c=a*k;d=b*k;if(Math.random()<.5){var t=a;a=c;c=t;t=b;b=d;d=t;}}
+  else{do{b=R(2,12);d=R(2,12);a=R(1,b-1);c=R(1,d-1);}while(a*d===c*b);}
+  s.cur={a:a,b:b,c:c,d:d,sg:a*d>c*b?1:a*d<c*b?-1:0};
+  ga().innerHTML='<h2>Größer oder kleiner?</h2><div class="stats">Runde '+s.r+' von 10 · Richtig: '+s.ok+' · Rekord: '+bestTxt('cmp')+'</div>'+
+    '<div class="cmp-row" id="gc-q">'+fr(a,b)+o('?')+fr(c,d)+'</div>'+
+    '<div class="cmp-btns"><button class="cbtn" data-g="cmp" data-v="1" aria-label="Linker Bruch ist größer">&gt;</button><button class="cbtn" data-g="cmp" data-v="0" aria-label="Beide Brüche sind gleich groß">=</button><button class="cbtn" data-g="cmp" data-v="-1" aria-label="Rechter Bruch ist größer">&lt;</button></div>'+
+    '<div id="gc-fb" aria-live="polite"></div>';
+}
+function gcAnswer(v){
+  var s=gst,c=s.cur;if(!c||s.answered)return;s.answered=true;
+  var ok=v===c.sg;if(ok)s.ok++;
+  var L=lcm(c.b,c.d),A=c.a*L/c.b,B=c.c*L/c.d,sym=c.sg>0?'&gt;':c.sg<0?'&lt;':'=';
+  document.getElementById('gc-q').innerHTML=fr(c.a,c.b)+o(sym)+fr(c.c,c.d);
+  document.querySelectorAll('.cbtn').forEach(function(b){b.disabled=true;});
+  document.getElementById('gc-fb').innerHTML='<div class="fb '+(ok?'ok':'bad')+'">'+(ok?'Richtig!':'Nicht ganz.')+' Mit dem Hauptnenner '+L+': '+fr(A,L)+' '+sym+' '+fr(B,L)+'</div><div class="btns"><button class="btn p" data-g="cmpnext">'+(s.r>=10?'Ergebnis':'Weiter')+'</button></div>';
+}
+function gcEnd(){
+  var nr=record('cmp',gst.ok,false);
+  ga().innerHTML='<h2>Größer oder kleiner?</h2><div class="gbig">'+gst.ok+' von 10</div><div class="fb ok" style="margin-top:12px">'+(gst.ok>=9?'Super, das sitzt!':gst.ok>=6?'Gut gemacht. Mit etwas Übung wird es noch besser.':'Tipp: Erweitere beide Brüche auf den gleichen Nenner, dann siehst du es sofort.')+(nr?' Neuer Rekord!':'')+'</div>'+againBtn();
+}
+
+/* 3. Zeitjagd */
+function gRush(){
+  ga().innerHTML='<h2>Zeitjagd</h2><p>Du hast 60 Sekunden. Löse so viele Aufgaben wie möglich. Alle vier Rechenarten kommen vor. Jede richtige Antwort gibt 1 Punkt, jede falsche kostet 3 Sekunden.</p><div class="stats" style="margin-top:8px">Rekord: '+bestTxt('rush')+'</div><div class="btns"><button class="btn p" data-g="rushgo">Start</button></div>';
+}
+function grStart(){
+  gst={t:60,score:0,streak:0,last:''};grQ();
+  gtimer=setInterval(function(){gst.t--;if(gst.t<=0){gst.t=0;grEnd();return;}var e=document.getElementById('gr-stat');if(e)e.textContent=grStat();},1000);
+}
+function grStat(){return 'Zeit: '+gst.t+' s · Punkte: '+gst.score+' · Serie: '+gst.streak;}
+function grQ(){
+  var ops=['add','sub','mul','div'],tk=genTask(ops[R(0,3)],R(1,2));
+  var cor=tk.ans,out=[],cand=[],a=tk.a,b=tk.b,c=tk.c,d=tk.d;
+  if(tk.op==='add')cand.push([a+c,b+d],[a+c,b],[a+c,d]);
+  else if(tk.op==='sub')cand.push([a-c,b+d],[a-c,b],[a+c,lcm(b,d)]);
+  else if(tk.op==='mul')cand.push([a+c,b+d],[a*d,b*c],[a*c,b+d]);
+  else cand.push([a*c,b*d],[b*c,a*d],[a+d,b+c]);
+  var fits=function(f){return f[0]>0&&f[1]>0&&f[0]*cor[1]!==cor[0]*f[1]&&!out.some(function(g){return g[0]*f[1]===f[0]*g[1];});};
+  sh(cand).forEach(function(f){if(f[0]>0&&f[1]>0){f=rd(f[0],f[1]);if(fits(f))out.push(f);}});
+  var n=0;
+  while(out.length<3&&n++<200){var f=[cor[0]+R(-2,3),cor[1]+R(-2,3)];if(f[0]>0&&f[1]>0){f=rd(f[0],f[1]);if(fits(f))out.push(f);}}
+  while(out.length<3){var f2=rd(R(1,12),R(2,12));if(fits(f2))out.push(f2);}
+  out=out.slice(0,3);
+  var opts=sh(out.map(function(f){return {f:f,ok:false};}).concat([{f:cor,ok:true}]));
+  gst.cur={tk:tk,opts:opts};grRender();
+}
+function grRender(){
+  var s=gst,tk=s.cur.tk;
+  ga().innerHTML='<h2>Zeitjagd</h2><div class="stats" id="gr-stat">'+grStat()+'</div>'+
+    '<div class="cmp-row" style="font-size:2rem">'+fr(tk.a,tk.b)+o(OPS[tk.op].sy)+fr(tk.c,tk.d)+o('=')+o('?')+'</div>'+
+    '<div class="opts">'+s.cur.opts.map(function(x,i){return '<button class="opt" data-g="opt" data-i="'+i+'">'+disp(x.f[0],x.f[1])+'</button>';}).join('')+'</div>'+
+    '<div class="stats" style="margin-top:10px" aria-live="polite">'+s.last+'</div>';
+}
+function grAnswer(i){
+  var s=gst;if(!s.cur||s.t<=0)return;var x=s.cur.opts[i];
+  if(x.ok){s.score++;s.streak++;s.last='Richtig!';}
+  else{
+    var c=s.cur.opts.filter(function(y){return y.ok;})[0];
+    s.streak=0;s.t=Math.max(0,s.t-3);s.last='Falsch, minus 3 Sekunden. Richtig war: '+disp(c.f[0],c.f[1]);
+    if(s.t<=0){grEnd();return;}
+  }
+  grQ();
+}
+function grEnd(){
+  stopTimers();
+  var nr=record('rush',gst.score,false);
+  ga().innerHTML='<h2>Zeit abgelaufen</h2><div class="gbig">'+gst.score+' Punkte</div><div class="fb ok" style="margin-top:12px">'+(nr?'Neuer Rekord!':'Rekord: '+bestTxt('rush'))+'</div>'+againBtn();
+  gst.cur=null;
+}
+
+/* 4. Ganzes füllen */
+function gFill(){gst={streak:0};gfNew();}
+function gfNew(){
+  var okv=function(v){return v%2===0||v%3===0;},sol=null,n=0;
+  while(!sol&&n++<500){var p1=R(2,16),p2=R(2,16),p3=24-p1-p2;if(p3>=2&&okv(p1)&&okv(p2)&&okv(p3))sol=[p1,p2,p3];}
+  if(!sol)sol=[12,6,6];
+  var vals=sol.slice(),t=0;
+  while(vals.length<6&&t++<200){var v=R(2,20);if(okv(v)&&vals.indexOf(v)<0)vals.push(v);}
+  sh(vals);
+  gst.pieces=vals.map(function(v,i){return {v:v,id:i};});gst.placed=[];gst.done=false;gst.rec=false;gfPaint();
+}
+function gfTotal(){return gst.placed.reduce(function(a,id){return a+gst.pieces[id].v;},0);}
+function gfFr(v){var r=rd(v,24);return fr(r[0],r[1]);}
+function gfPaint(){
+  var s=gst,tot=gfTotal(),scale=Math.max(tot,24),stat;
+  if(tot<24)stat='Noch frei: '+(function(){var r=rd(24-tot,24);return fr(r[0],r[1]);})();
+  else if(tot===24)stat='Genau 1 Ganzes!';
+  else stat='Zu viel: '+(function(){var r=rd(tot-24,24);return fr(r[0],r[1]);})()+'. Tippe ein Stück im Balken an, um es wegzunehmen.';
+  var sum='';
+  if(s.placed.length){var r2=rd(tot,24);sum='<div class="eq" style="font-size:1.2rem">'+s.placed.map(function(id){return gfFr(s.pieces[id].v);}).join(o('+'))+o('=')+disp(r2[0],r2[1])+'</div>';}
+  ga().innerHTML='<h2>Ganzes füllen</h2><p class="hint" style="margin:0 0 4px">Tippe Stücke an, bis der Balken genau 1 Ganzes ergibt. Du darfst beliebig viele Stücke benutzen.</p>'+
+    '<div class="stats">Serie: '+s.streak+' · Rekord: '+bestTxt('fill')+'</div>'+
+    '<div class="gbar'+(tot>24?' over':'')+'" aria-label="Balken">'+s.placed.map(function(id){var v=s.pieces[id].v,r=rd(v,24);return '<button class="seg" data-g="frem" data-id="'+id+'" style="width:'+(v/scale*100)+'%" aria-label="Stück '+r[0]+' von '+r[1]+' entfernen">'+fr(r[0],r[1])+'</button>';}).join('')+'</div>'+
+    sum+'<p style="margin:8px 0 12px;font-weight:700" aria-live="polite">'+stat+'</p>'+
+    '<div class="pool">'+s.pieces.map(function(pc){var r=rd(pc.v,24),used=s.placed.indexOf(pc.id)>-1;return '<button class="pc" data-g="fadd" data-id="'+pc.id+'"'+(used||s.done?' disabled':'')+' aria-label="Stück '+r[0]+' von '+r[1]+'">'+fr(r[0],r[1])+'</button>';}).join('')+'</div>'+
+    (s.done?'<div class="fb ok">Geschafft!'+(s.rec?' Neuer Rekord!':'')+'</div><div class="btns"><button class="btn p" data-g="fnew">Nächstes Rätsel</button></div>':
+    '<div class="btns"><button class="btn" data-g="fundo">Zurück</button><button class="btn" data-g="fnew">Neues Rätsel</button></div>');
+}
+function gfAdd(id){if(gst.done||gst.placed.indexOf(id)>-1)return;gst.placed.push(id);if(gfTotal()===24){gst.done=true;gst.streak++;gst.rec=record('fill',gst.streak,false);}gfPaint();}
+function gfRem(id){if(gst.done)return;gst.placed=gst.placed.filter(function(x){return x!==id;});gfPaint();}
+function gfUndo(){if(gst.done)return;gst.placed.pop();gfPaint();}
+
+
+/* ---------- Sachaufgaben (zufällig) ---------- */
+var WORDS={
+  add:[
+    function(x,y){return 'Mia läuft am Montag '+x+' km und am Dienstag '+y+' km. Wie viele Kilometer sind das zusammen?';},
+    function(x,y){return 'Für den Teig braucht Ben '+x+' kg Mehl, für die Verzierung noch '+y+' kg. Wie viel Mehl braucht er insgesamt?';},
+    function(x,y){return 'Ein Brett ist '+x+' m lang, ein zweites '+y+' m. Beide werden aneinandergelegt. Wie lang sind sie zusammen?';},
+    function(x,y){return 'Im Eimer sind '+x+' l Wasser. Lena gießt noch '+y+' l dazu. Wie viel Wasser ist jetzt im Eimer?';}
+  ],
+  sub:[
+    function(x,y){return 'Ein Kanister enthält '+x+' l Wasser. Es werden '+y+' l entnommen. Wie viel Wasser bleibt im Kanister?';},
+    function(x,y){return 'Ein Seil ist '+x+' m lang. Ein Stück von '+y+' m wird abgeschnitten. Wie lang ist der Rest?';},
+    function(x,y){return 'Paul hat '+x+' kg Äpfel. Er gibt '+y+' kg an seine Schwester. Wie viel behält er?';},
+    function(x,y){return 'Der Schulweg ist '+x+' km lang. Nach '+y+' km macht Ida Pause. Wie weit muss sie noch gehen?';}
+  ],
+  mul:[
+    function(x,y){return 'Von einer Pizza sind noch '+x+' übrig. Tim isst '+y+' davon. Welcher Teil der ganzen Pizza ist das?';},
+    function(x,y){return 'Ein Krug fasst '+x+' l. Er ist zu '+y+' gefüllt. Wie viel Liter sind im Krug?';},
+    function(x,y){return 'Ein Garten ist '+x+' ha groß. '+y+' davon sind Beete. Wie viel Hektar sind Beete?';},
+    function(x,y){return 'Eine Packung wiegt '+x+' kg. Nora verbraucht '+y+' der Packung. Wie viel Kilogramm sind das?';}
+  ],
+  div:[
+    function(x,y){return 'Du hast '+x+' l Saft. Jedes Glas soll '+y+' l fassen. Wie viele Gläser sind das?';},
+    function(x,y){return 'Ein Band ist '+x+' m lang. Jedes Stück soll '+y+' m lang sein. Wie viele Stücke ergibt das?';},
+    function(x,y){return 'Ein Sack enthält '+x+' kg Futter. Jede Portion wiegt '+y+' kg. Wie viele Portionen sind das?';},
+    function(x,y){return 'Eine Tafel Schokolade ist '+x+' einer ganzen Tafel. Jede Portion ist '+y+' einer ganzen Tafel. Wie viele Portionen ergibt das?';}
+  ]
+};
+var wt=null,wsolved=false,whint=0;
+function newWord(){
+  var el=document.getElementById('word');if(!el)return;
+  var op=cur,tk=genTask(op,level),arr=WORDS[op],f=arr[R(0,arr.length-1)];
+  wt={op:op,a:tk.a,b:tk.b,c:tk.c,d:tk.d,ans:tk.ans,steps:tk.steps};
+  wsolved=false;whint=0;
+  el.innerHTML='<p class="q" style="font-size:1.08rem;font-weight:700;margin-bottom:6px">'+f(fr(tk.a,tk.b),fr(tk.c,tk.d))+'</p>'+
+    '<p class="hint" style="margin:0 0 8px">Gib das Ergebnis als Bruch an. Bei einer ganzen Zahl reicht der Zähler.</p>'+
+    '<div class="task" style="font-size:1.6rem">'+o('=')+'<span class="ans"><input id="wa-n" inputmode="numeric" autocomplete="off" aria-label="Zähler deiner Antwort" placeholder="Zähler"><hr><input id="wa-d" inputmode="numeric" autocomplete="off" aria-label="Nenner deiner Antwort" placeholder="Nenner"></span></div>'+
+    '<div class="btns"><button class="btn p" data-act="wcheck">Prüfen</button><button class="btn" data-act="whint">Tipp</button></div><div id="wfb" aria-live="polite"></div>';
+}
+function wfb(cls,html){document.getElementById('wfb').innerHTML='<div class="fb '+cls+'">'+html+'</div>';}
+function wcheck(){
+  if(wsolved||!wt)return;
+  var zs=document.getElementById('wa-n').value.trim(),ns=document.getElementById('wa-d').value.trim();
+  var z=parseInt(zs,10),n=ns===''?1:parseInt(ns,10);
+  if(isNaN(z)||!/^\d+$/.test(zs)){wfb('info','Trag zuerst einen Zähler ein. Bei einer ganzen Zahl reicht der Zähler.');return;}
+  if(isNaN(n)||n<1||!/^\d*$/.test(ns)){wfb('info','Der Nenner muss eine Zahl größer als 0 sein.');return;}
+  var A=wt.ans;
+  if(z*A[1]===A[0]*n){
+    wsolved=true;var g=gcd(z,n);
+    if(g>1&&n>1)wfb('ok','Der Wert stimmt! Du kannst aber noch durch '+g+' kürzen: '+fr(z/g,n/g)+'.');
+    else wfb('ok',['Richtig! Gut übersetzt und gerechnet.','Stimmt genau!','Richtig, weiter so!'][R(0,2)]+(A[1]>1&&A[0]>A[1]?' Als gemischte Zahl: '+mixed(A[0],A[1])+'.':''));
+    document.getElementById('wfb').insertAdjacentHTML('beforeend','<details class="how"><summary>Rechenweg ansehen</summary><div class="hintlist"><div class="eq">'+fr(wt.a,wt.b)+o(OPS[wt.op].sy)+fr(wt.c,wt.d)+'</div>'+stepsHtml(wt.steps)+'</div></details><div class="btns"><button class="btn p" data-act="wnew">Nächste Sachaufgabe</button></div>');
+  }else wfb('bad','Noch nicht ganz. Hol dir einen Tipp: Zuerst übersetzt du die Geschichte in eine Rechnung.');
+}
+function whintShow(){
+  if(wsolved||!wt)return;
+  var all=[{t:'Übersetze die Geschichte in eine Rechnung:',m:fr(wt.a,wt.b)+o(OPS[wt.op].sy)+fr(wt.c,wt.d)}].concat(wt.steps);
+  whint=Math.min(whint+1,all.length);
+  document.getElementById('wfb').innerHTML='<div class="fb info"><div class="hintlist">'+stepsHtml(all.slice(0,whint))+'</div>'+(whint<all.length?'<p class="hint" style="margin-top:10px">Drück nochmal auf Tipp für den nächsten Schritt.</p>':'')+'</div>';
+}
+
+/* ---------- Ereignisse ---------- */
+document.addEventListener('click',function(e){
+  var t=e.target.closest('[data-act]');if(!t)return;
+  var act=t.getAttribute('data-act');
+  if(act==='tab'){cur=t.getAttribute('data-op');try{history.replaceState(null,'','#'+cur);}catch(x){}save();renderTabs();renderPanel();}
+  else if(act==='inc'||act==='dec'){
+    var k=t.getAttribute('data-key'),dm=demo[cur],dl=act==='inc'?1:-1;
+    if(k==='b'||k==='d'){dm[k]=Math.min(12,Math.max(2,dm[k]+dl));var nk=k==='b'?'a':'c';if(dm[nk]>dm[k])dm[nk]=dm[k];}
+    else{var dk=k==='a'?'b':'d';dm[k]=Math.min(dm[dk],Math.max(1,dm[k]+dl));}
+    updateDemo();
+  }
+  else if(act==='lvl'){level=parseInt(t.getAttribute('data-l'),10);save();document.querySelectorAll('[data-act="lvl"]').forEach(function(b){b.setAttribute('aria-pressed',String(parseInt(b.getAttribute('data-l'),10)===level));});newTask();}
+  else if(act==='wnew')newWord();
+  else if(act==='wcheck')wcheck();
+  else if(act==='whint')whintShow();
+  else if(act==='check')check();
+  else if(act==='hint')hint();
+  else if(act==='skip'){if(!solved){stats[cur].st=0;save();updateStats();}newTask();}
+});
+document.addEventListener('click',function(e){
+  var t=e.target.closest('[data-g]');if(!t)return;
+  var g=t.getAttribute('data-g'),i=parseInt(t.getAttribute('data-i')||t.getAttribute('data-id'),10);
+  if(g==='sel'){gsel=t.getAttribute('data-id');document.querySelectorAll('.gcard').forEach(function(b){b.setAttribute('aria-pressed',String(b.getAttribute('data-id')===gsel));});startGame(gsel);}
+  else if(g==='again')startGame(gsel);
+  else if(g==='mc')gmClick(i);
+  else if(g==='cmp')gcAnswer(parseInt(t.getAttribute('data-v'),10));
+  else if(g==='cmpnext')gcNext();
+  else if(g==='rushgo')grStart();
+  else if(g==='opt')grAnswer(i);
+  else if(g==='fadd')gfAdd(i);
+  else if(g==='frem')gfRem(i);
+  else if(g==='fundo')gfUndo();
+  else if(g==='fnew')gfNew();
+});
+document.addEventListener('keydown',function(e){if(e.key==='Enter'&&e.target&&(e.target.id==='ans-n'||e.target.id==='ans-d'))check();
+  if(e.key==='Enter'&&e.target&&(e.target.id==='wa-n'||e.target.id==='wa-d'))wcheck();});
+
+document.getElementById('pre-e').innerHTML=fr(2,3)+o('=')+fr('2 · 4','3 · 4')+o('=')+fr(8,12);
+document.getElementById('pre-k').innerHTML=fr(6,9)+o('=')+fr('6 : 3','9 : 3')+o('=')+fr(2,3);
+document.getElementById('pre-g').innerHTML=fr(7,4)+o('=')+mixed(7,4);
+renderTabs();renderPanel();
+})();
+</script>
+<script>
+if('serviceWorker' in navigator){
+  window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){});});
+}
+</script>
+</body>
+</html>
